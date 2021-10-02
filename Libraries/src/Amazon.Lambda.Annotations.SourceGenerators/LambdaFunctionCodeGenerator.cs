@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Linq;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace Amazon.Lambda.Annotations.SourceGenerators
 {
@@ -40,7 +41,7 @@ namespace Amazon.Lambda.Annotations.SourceGenerators
         }
 
         public INamedTypeSymbol ReturnType => LambdaFunctionMethodSymbol.ReturnType as INamedTypeSymbol;
-        
+
         /// <summary>
         /// Represents the Configure(IServiceCollection) method in the LambdaStartup attributed class.
         /// </summary>
@@ -49,6 +50,11 @@ namespace Amazon.Lambda.Annotations.SourceGenerators
         {
             get
             {
+                if (_startupSyntax == null)
+                {
+                    return null;
+                }
+
                 if (_configureMethodSymbol == null)
                 {
                     var iServiceCollectionSymbol =
@@ -128,7 +134,7 @@ namespace Amazon.Lambda.Annotations.SourceGenerators
             }
 
             var source = new StringBuilder(
-                $@"using System;
+$@"using System;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
 using Microsoft.Extensions.DependencyInjection;
@@ -136,7 +142,7 @@ using System.Collections.Generic;
 
 namespace {LambdaFunctionMethodSymbol.ContainingNamespace}
 {{
-    public class {ClassName} 
+    public class {ClassName}
     {{
         private readonly ServiceProvider serviceProvider;
 
@@ -163,8 +169,8 @@ namespace {LambdaFunctionMethodSymbol.ContainingNamespace}
 
         public{(LambdaFunctionMethodSymbol.IsAsync ? " async " : " ")}{returnTypeString} {LambdaFunctionMethodSymbol.Name}(APIGatewayProxyRequest request, ILambdaContext _context)
         {{
-            // Create a scope for every request, 
-            // this allows creating scoped dependencies without creating a scope manually. 
+            // Create a scope for every request,
+            // this allows creating scoped dependencies without creating a scope manually.
             using var scope = serviceProvider.CreateScope();
 
             var {LambdaFunctionMethodSymbol.ContainingType.Name.ToCamelCase()} = scope.ServiceProvider.GetRequiredService<{LambdaFunctionMethodSymbol.ContainingType}>();");
@@ -233,7 +239,7 @@ namespace {LambdaFunctionMethodSymbol.ContainingNamespace}
                 {
                     source.Append($@"
                 Body = body,
-                Headers = new Dictionary<string, string> 
+                Headers = new Dictionary<string, string>
                 {{
                     {{ ""Content-Type"", ""text/plain"" }}
                 }}");
@@ -247,9 +253,9 @@ namespace {LambdaFunctionMethodSymbol.ContainingNamespace}
         }}
     }}
 }}"
-            );
+);
 
-            return ($"{ClassName}.cs", SourceText.From(source.ToString(), Encoding.UTF8));
+            return ($"{ClassName}.cs", SourceText.From(source.ToString(), Encoding.UTF8, SourceHashAlgorithm.Sha256));
         }
     }
 }

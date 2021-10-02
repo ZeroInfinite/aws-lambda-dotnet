@@ -31,7 +31,6 @@ namespace TestServerlessApp
         [LambdaFunction]
         public int Add()
         {
-
             return _simpleCalculatorService.Add(4, 2);
         }
 

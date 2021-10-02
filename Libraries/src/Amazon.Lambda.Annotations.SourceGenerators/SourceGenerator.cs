@@ -4,21 +4,21 @@ using Microsoft.CodeAnalysis;
 namespace Amazon.Lambda.Annotations.SourceGenerators
 {
     [Generator]
-    internal class SourceGenerator : ISourceGenerator
+    public class SourceGenerator : ISourceGenerator
     {
         public SourceGenerator()
         {
 #if DEBUG
-            if (!Debugger.IsAttached)
-            {
-                Debugger.Launch();
-            }
+            //if (!Debugger.IsAttached)
+            //{
+            //    Debugger.Launch();
+            //}
 #endif
         }
 
         public void Execute(GeneratorExecutionContext context)
         {
-            // retrieve the populated receiver 
+            // retrieve the populated receiver
             if (!(context.SyntaxContextReceiver is SyntaxReceiver receiver))
             {
                 return;
