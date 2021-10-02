@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Amazon.Lambda.Annotations.SourceGenerators.Tests
 {
+    /// <summary>
+    /// Source: https://github.com/dotnet/roslyn/blob/main/docs/features/source-generators.cookbook.md
+    /// </summary>
     public static class CSharpSourceGeneratorVerifier<TSourceGenerator>
         where TSourceGenerator : ISourceGenerator, new()
     {
